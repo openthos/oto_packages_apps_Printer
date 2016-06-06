@@ -22,28 +22,24 @@ public class QueryPrinterOptonsTask<Progress> extends CommandTask<String, Progre
     @Override
     protected List<PrinterOptionItem> handleCommand(List<String> stdOut, List<String> stdErr) {
 
-        for(String line: stdErr){
-
-            if( line.startsWith("WARNING") )
+        for(String line: stdErr) {
+            if(line.startsWith("WARNING")) {
                 continue;
-            else if (line.contains("Bad file descriptor")){
-                if( startCups() ){
-                    runCommandAgain();      //再次运行命令
+            } else if (line.contains("Bad file descriptor")) {
+                if(startCups()) {
+                    runCommandAgain();
                     return null;
-                }else{
+                } else {
                     ERROR = "Cups start failed.";
                     return null;
                 }
-            }else if (line.contains("The printer or class does not exist")){
+            } else if (line.contains("The printer or class does not exist")) {
                 ERROR = "The printer or class does not exist.";
                 return null;
             }
-
         }
 
-        // TODO: 2016/5/27 查询打印机设置  B9
         List<PrinterOptionItem> options = new ArrayList<>();
-        //模拟数据
         PrinterOptionItem item1 = new PrinterOptionItem();
         item1.setName("Printing Quality");
         item1.setOption_id("Quality");

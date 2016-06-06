@@ -34,16 +34,10 @@ public class PrintDiscoverySession extends PrinterDiscoverySession {
         this.openthosPrintService = openthosPrintService;
     }
 
-    /**
-     *开始寻找打印机
-     * @param priorityList
-     */
     @Override
     public void onStartPrinterDiscovery(final List<PrinterId> priorityList) {
         LogUtils.d(TAG, "onStartPrinterDiscovery()");
         final List<PrinterInfo> printers = this.getPrinters();
-
-        // 2016/5/10 发出寻找打印机的任务，查询已添加打印机
 
         ListAddedTask<Void, Void> task = new ListAddedTask<Void, Void>() {
             @Override
@@ -56,7 +50,7 @@ public class PrintDiscoverySession extends PrinterDiscoverySession {
 
                         PrinterId id = openthosPrintService.generatePrinterId(String.valueOf(printerItem.getNickName()));
 
-                        if(priorityList.contains(id)){
+                        if(priorityList.contains(id)) {
                             old_list.remove(id);
                             continue;
                         }
@@ -67,7 +61,7 @@ public class PrintDiscoverySession extends PrinterDiscoverySession {
                         printers.add(myprinter);
                     }
                     addPrinters(printers);
-                }else{
+                } else {
                     Toast.makeText(openthosPrintService, openthosPrintService.getResources().getString(R.string.query_error) + " " + ERROR, Toast.LENGTH_SHORT).show();
                 }
 
@@ -79,27 +73,15 @@ public class PrintDiscoverySession extends PrinterDiscoverySession {
 
     }
 
-    /**
-     * 停止寻找
-     */
     @Override
     public void onStopPrinterDiscovery() {
-        // 由于在CUPS中不管打印机有没有连接，都属于空闲打印机，所以只要寻找一次，获取参数就可以了。不需要一直扫描。
     }
 
-    /**
-     * ？不明
-     * @param printerIds
-     */
     @Override
     public void onValidatePrinters(List<PrinterId> printerIds) {
         // TODO: 2016/5/10  onValidatePrinters ?
     }
 
-    /**
-     * 选择打印机时调用该方法更新打印机的状态，功能
-     * @param printerId
-     */
     @Override
     public void onStartPrinterStateTracking(final PrinterId printerId) {
         LogUtils.d(TAG, "onStartPrinterStateTracking()");
@@ -108,7 +90,7 @@ public class PrintDiscoverySession extends PrinterDiscoverySession {
             @Override
             protected void onPostExecute(PrinterInfo printerInfo) {
 
-                if(printerInfo == null){
+                if(printerInfo == null) {
                     Toast.makeText(openthosPrintService, openthosPrintService.getResources().getString(R.string.query_error) + " " + ERROR, Toast.LENGTH_LONG).show();
                     PrinterInfo.Builder builder =
                             new PrinterInfo.Builder(printerId, printerId.getLocalId(), PrinterInfo.STATUS_UNAVAILABLE);
@@ -124,13 +106,8 @@ public class PrintDiscoverySession extends PrinterDiscoverySession {
 
     }
 
-    /**
-     * 选择结束，停止更新
-     * @param printerId
-     */
     @Override
     public void onStopPrinterStateTracking(PrinterId printerId) {
-        // 同上，不需要该函数停止，对于CUPS只要获取一次
     }
 
     @Override

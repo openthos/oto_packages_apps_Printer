@@ -19,5 +19,4 @@
         android:orderInCategory="101"
         android:title="@string/delete"
         app:showAsAction="ifRoom" />
-
 </menu>

@@ -39,7 +39,7 @@ import java.util.Map;
 public class ManagementActivity extends BaseActivity {
 
     private static final String TAG = "ManagementActivity";
-    private boolean IS_DETECTING = false;       //是否正在检测新打印机
+    private boolean IS_DETECTING = false;
     private ListView listview;
     private ManagementAdapter adapter;
     private final List<ManagementListItem> listItem = new ArrayList<>();;
@@ -52,9 +52,7 @@ public class ManagementActivity extends BaseActivity {
         handlerIntent(getIntent());
     }
 
-    private void init(){
-
-
+    private void init() {
         setContentView(R.layout.activity_management);
         listview = (ListView)findViewById(R.id.listView);
         adapter = new ManagementAdapter(this, listItem);
@@ -63,12 +61,11 @@ public class ManagementActivity extends BaseActivity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 ManagementListItem item = adapter.getItem(position);
                 LogUtils.d(TAG, "onItemClick -> " + item.toString());
-                if(item.getType() == ManagementListItem.TYPE_ADDED_PRINTER){
+                if(item.getType() == ManagementListItem.TYPE_ADDED_PRINTER) {
                     showConfigDialog(item);
-                }else if(item.getType() == ManagementListItem.TYPE_LOCAL_PRINTER){
+                } else if(item.getType() == ManagementListItem.TYPE_LOCAL_PRINTER) {
                     showAddLocalDialog(item);
                 }
             }
@@ -76,7 +73,6 @@ public class ManagementActivity extends BaseActivity {
     }
 
     private void showConfigDialog(ManagementListItem item) {
-
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag(ConfigPrinterDialogFragment.ITEM);
         if (prev != null) {
@@ -90,10 +86,6 @@ public class ManagementActivity extends BaseActivity {
         ft.commitAllowingStateLoss();
     }
 
-    /**
-     * 显示添加本地打印机Dialog
-     * @param deviceItem
-     */
     private void showAddLocalDialog(final ManagementListItem deviceItem) {
 
         final Map<String, List<PPDItem>> models = new HashMap<>();
@@ -129,19 +121,16 @@ public class ManagementActivity extends BaseActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
 
         model.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
 
@@ -164,7 +153,6 @@ public class ManagementActivity extends BaseActivity {
 
         dialog.show();
 
-        //手动设置监听器，使得dialog点击不消失
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             private boolean PRESSED = false;
 
@@ -175,7 +163,6 @@ public class ManagementActivity extends BaseActivity {
                     return;
                 }
 
-                //传入参数
                 Map<String,String> p = new HashMap<>();
                 p.put("name", name.getText().toString());
                 p.put("model", modelList.get(model.getSelectedItemPosition()).getModel());
@@ -198,28 +185,21 @@ public class ManagementActivity extends BaseActivity {
                 };
 
                 task.start(p);
-
             }
-
         });
 
-
-        new SearchModelsTask<Void, Void>(){
+        new SearchModelsTask<Void, Void>() {
             @Override
             protected void onPostExecute(ModelsItem modelsItem) {
-
-                if(modelsItem == null){
+                if(modelsItem == null) {
                     Toast.makeText(ManagementActivity.this, getResources().getString(R.string.query_error) + " " + ERROR, Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 brandList.addAll(modelsItem.getBrand());
                 models.putAll(modelsItem.getModels());
                 brandAdapter.notifyDataSetChanged();
             }
         }.start();
-
-
     }
 
     @Override
@@ -235,15 +215,14 @@ public class ManagementActivity extends BaseActivity {
     }
 
     private void handlerIntent(Intent intent) {
-
-        if(intent == null){
+        if(intent == null) {
             return;
         }
 
         int task = intent.getIntExtra(APP.TASK, APP.TASK_DEFAULT);
         LogUtils.d(TAG, "Intent -> task = " + task);
 
-        switch (task){
+        switch (task) {
             case APP.TASK_ADD_NEW_PRINTER:
                 detect_printers();
                 break;
@@ -255,26 +234,15 @@ public class ManagementActivity extends BaseActivity {
         }
     }
 
-    /**
-     * 搜索打印机
-     */
     private void detect_printers() {
-
-        if(IS_DETECTING){
+        if(IS_DETECTING) {
             Toast.makeText(ManagementActivity.this, R.string.searching, Toast.LENGTH_SHORT).show();
             return;
         }
-
         IS_DETECTING = true;
-
         adapter.startDetecting();
-
     }
 
-    /**
-     * 设置是否正在检测
-     * @param IS_DETECTING
-     */
     public void setIS_DETECTING(boolean IS_DETECTING) {
         this.IS_DETECTING = IS_DETECTING;
     }
@@ -312,7 +280,7 @@ public class ManagementActivity extends BaseActivity {
             return true;
         }
 
-        if(id == R.id.action_system_print_service){
+        if(id == R.id.action_system_print_service) {
             Intent intent = new Intent(Settings.ACTION_PRINT_SETTINGS);
             startActivity(intent);
             return true;
@@ -320,5 +288,4 @@ public class ManagementActivity extends BaseActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 }

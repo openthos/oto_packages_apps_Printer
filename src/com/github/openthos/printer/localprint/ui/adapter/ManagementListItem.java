@@ -18,9 +18,7 @@ public class ManagementListItem<T> {
     public static final int TYPE_LOADING = 5;
     public static final int TYPE_LOCAL_PRINTER = 6;
     public static final int TYPE_EMPTY = 7;
-
     public static final int TYPE_COUNT = 8;
-
 
     private int type;
     private T viewHolder;
@@ -30,7 +28,6 @@ public class ManagementListItem<T> {
         this.type = type;
         viewHolder = t;
     }
-
 
     public int getType() {
         return type;
@@ -56,11 +53,8 @@ public class ManagementListItem<T> {
         this.printeritem = printeritem;
     }
 
-
     public static class Builder{
-
         ManagementListItem item = null;
-
         public Builder(int type) {
             super();
 
@@ -90,7 +84,6 @@ public class ManagementListItem<T> {
                     item = new ManagementListItem<EMPTY>(TYPE_EMPTY, new EMPTY());
                     break;
                 default:
-
                     break;
             }
         }
@@ -98,7 +91,6 @@ public class ManagementListItem<T> {
         public ManagementListItem get(){
             return item;
         }
-
     }
 
     @Override
@@ -108,37 +100,26 @@ public class ManagementListItem<T> {
                 ", printeritem=" + printeritem +
                 '}';
     }
-
-
-
 }
 
-
 class ADDED_PRINTERS_WORDS {
-
 }
 
 class ADDED_PRINTER {
-
     TextView textView_printer_name;
     TextView textView_printer_info;
-
 }
 
 class ADDED_ENDLINE {
-
 }
 
 class LOCAL_PRINTER_WORDS {
-
 }
 
 class NET_PRINTER_WORDS {
-
 }
 
 class LOADING {
-
 }
 
 class LOCAL_PRINTER {
@@ -147,5 +128,4 @@ class LOCAL_PRINTER {
 }
 
 class EMPTY {
-
 }

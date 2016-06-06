@@ -12,23 +12,13 @@ public abstract class BaseTask<Params, Progress, Result> extends AsyncTask<Param
     public BaseTask() {
         super();
         String TAG = bindTAG();
-        if(TAG != null && !TAG.equals("")){
+        if(TAG != null && !TAG.equals("")) {
             this.TAG = TAG;
         }
     }
 
-    /**
-     * 设置TAG标记
-     * @return
-     */
     protected abstract String bindTAG();
 
-    /**
-     * 执行任务
-     * 并发执行
-     * @param params
-     * @return  itself
-     */
     public AsyncTask<Params, Progress, Result> start(Params... params){
         return this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
     }

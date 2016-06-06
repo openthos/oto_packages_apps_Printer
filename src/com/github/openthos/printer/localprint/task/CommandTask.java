@@ -22,7 +22,7 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
     private boolean RUN_AGAIN = true;
     private List<String> stdOut = new ArrayList<String>();
     private List<String> stdErr = new ArrayList<String>();
-    protected  String ERROR = "";                   //可以填写错误信息，输出给用户
+    protected  String ERROR = "";
     private String[] cmd = null;
     private Thread cupsdThread = null;
 
@@ -35,8 +35,7 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         cmd = setCmd(params);
 
         Result result = null;
-        //在CUPS没有启动的情况下会启动CUPS，并且重新运行命令
-        while(RUN_AGAIN){
+        while(RUN_AGAIN) {
             RUN_AGAIN = false;
             runCommand(cmd);
             result = handleCommand(stdOut, stdErr);
@@ -44,40 +43,20 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         return result;
     }
 
-
-    /**
-     * 再次运行命令
-     * 调用该命令，需要立即return，运行后会自动调用handleCommand函数
-     */
     protected final void runCommandAgain(){
         if(cmd != null)
             RUN_AGAIN = true;
     }
 
-    /**
-     * 在command运行之前执行
-     * 仍然在doInBackground里执行
-     * @return
-     */
     protected boolean beforeCommand() {
-
         return true;
     }
 
-    /**
-     * 设置要执行的命令
-     * @return
-     * @param params
-     */
     protected abstract String[] setCmd(Params... params);
 
-    /**
-     * 执行命令
-     * @param cmd
-     */
     private void runCommand(String[] cmd) {
 
-        if(cmd != null && cmd.length == 0){
+        if(cmd != null && cmd.length == 0) {
             return;
         }
         LogUtils.d(TAG, "cmd => " + Arrays.toString(cmd));
@@ -106,12 +85,10 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                         e.printStackTrace();
                     }
 
-                    synchronized (lock_in){
+                    synchronized (lock_in) {
                         lock_in.notify();
                         lock_in.setFinish(true);
                     }
-
-
                 }
             };
 
@@ -122,14 +99,14 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                     BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                     String line = null;
                     try {
-                        while((line = in.readLine()) != null){
+                        while((line = in.readLine()) != null) {
                             stdErr.add(line);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    synchronized (lock_error){
+                    synchronized (lock_error) {
                         lock_error.notify();
                         lock_error.setFinish(true);
                     }
@@ -139,19 +116,17 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
             new Thread(taskIn).start();
             new Thread(taskError).start();
 
-            synchronized (lock_in){
-                if(!lock_in.isFinish()){
+            synchronized (lock_in) {
+                if(!lock_in.isFinish()) {
                     lock_in.wait();
                 }
             }
 
-            synchronized (lock_error){
-                if(!lock_error.isFinish()){
+            synchronized (lock_error) {
+                if(!lock_error.isFinish()) {
                     lock_error.wait();
                 }
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -160,28 +135,15 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
 
         Log.d(TAG,"stdOut " + stdOut.toString());
         Log.d(TAG,"stdErr " + stdErr.toString());
-
     }
 
-    /**
-     * 命令执行完毕，处理命令。
-     * 仍然在doInBackground里执行。
-     * @param stdOut
-     * @param stdErr
-     * @return
-     */
     protected abstract Result handleCommand(List<String> stdOut, List<String> stdErr);
 
-    /**
-     * 获得工作路径
-     * 可自行重写
-     * @return 工作路径
-     */
     protected String getWorkPath() {
         return FileUtils.getComponentPath();
     }
 
-    class   Lock{
+    class Lock {
         boolean finish = false;
 
         public boolean isFinish() {
@@ -193,17 +155,12 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         }
     }
 
-    /**
-     * 检测cups是否在运行
-     * @return
-     */
-    protected boolean cupsIsRunning(){
+    protected boolean cupsIsRunning() {
         boolean flag = false;
 
-        runCommand(new String[]{"sh", "proot.sh", "lpstat", "-r"});
-        //  2016/5/15 检测cups是否在运行 A1
-        for(String line: stdOut){
-            if(line.contains("scheduler is running")){
+        runCommand(new String[] {"sh", "proot.sh", "lpstat", "-r"});
+        for(String line: stdOut) {
+            if(line.contains("scheduler is running")) {
                 flag = true;
                 break;
             }
@@ -211,17 +168,11 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         return flag;
     }
 
-    /**
-     * 检测cups是否在运行
-     * 另一个检查方法
-     * @return
-     */
-    protected boolean cupsIsRunning1(){
+    protected boolean cupsIsRunning1() {
         boolean flag = false;
         runCommand(new String[]{"sh", "proot.sh", "ps", "|", "grep", "cupsd"});
-        //再判断进程是否存在
-        for(String line: stdOut){
-            if(line.contains("cupsd.conf")){
+        for(String line: stdOut) {
+            if(line.contains("cupsd.conf")) {
                 flag = true;
                 break;
             }
@@ -229,17 +180,11 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         return flag;
     }
 
-    /**
-     * 启动cups
-     * @return  启动结果
-     */
-    protected boolean startCups(){
+    protected boolean startCups() {
 
-        if(cupsIsRunning()){
+        if(cupsIsRunning()) {
             return true;
         }
-
-        //runCommand(new String[]{"sh", "proot.sh" ,"cupsd"});
 
         File file = new File(getWorkPath());
         try {
@@ -254,20 +199,12 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
             e.printStackTrace();
         }
 
-        // 2016/5/15 启动cups A2
         return cupsIsRunning();
     }
 
-    /**
-     * 关闭cups
-     * @return
-     */
     protected void killCups(){
-        // 2016/5/15 关闭CUPS A3
-        /*if(cupsdProcess != null){
+        /*if(cupsdProcess != null) {
             cupsdProcess.destroy();
         }*/
-
     }
-
 }

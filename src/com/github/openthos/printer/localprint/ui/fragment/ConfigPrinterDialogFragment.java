@@ -85,27 +85,20 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
         return v;
     }
 
-    /**
-     * 高级设置界面
-     */
     private void tuning() {
         Intent intent = new Intent(getActivity(), AdvancedPrintOptionActivity.class);
         getActivity().startActivity(intent);
     }
 
-    /**
-     * 打印测试页
-     */
     private void test_page() {
         PrintTask<Void> task = new PrintTask<Void>() {
             @Override
             protected void onPostExecute(String jobId) {
-                if(jobId == null){
+                if(jobId == null) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.print_error) + " " + ERROR, Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     Toast.makeText(getActivity(), R.string.printing, Toast.LENGTH_SHORT).show();
                 }
-
             }
         };
 
@@ -118,9 +111,6 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
         Toast.makeText(getActivity(), R.string.start_printing, Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * 删除该打印机
-     */
     private void delete() {
 
         new AlertDialog.Builder(getActivity())
@@ -128,14 +118,13 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                     }
                 })
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        if(IS_DELETEING){
+                        if(IS_DELETEING) {
                             Toast.makeText(getActivity(), R.string.deleting, Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -143,9 +132,9 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
                         DeletePrinterTask<Void> task = new DeletePrinterTask<Void>() {
                             @Override
                             protected void onPostExecute(Boolean aBoolean) {
-                                if(aBoolean){
+                                if(aBoolean) {
                                     Toast.makeText(getActivity(), R.string.deleted_successfully, Toast.LENGTH_SHORT).show();
-                                }else{
+                                } else {
                                     Toast.makeText(getActivity(), R.string.delete_failed, Toast.LENGTH_SHORT).show();
                                 }
                                 IS_DELETEING = false;
@@ -154,17 +143,13 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
                         };
                         task.start(item.getNickName());
                         IS_DELETEING = true;
-
                     }
                 })
                 .create().show();
-
-
-
     }
 
     private void save() {
-        //// TODO: 2016/4/16 保存配置修改并退出 B5
+        // TODO: 2016/4/16
 
     }
 
@@ -193,5 +178,4 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
         f.setArguments(args);
         return f;
     }
-
 }

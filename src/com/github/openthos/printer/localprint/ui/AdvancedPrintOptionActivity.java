@@ -30,9 +30,6 @@ public class AdvancedPrintOptionActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TODO: 2016/5/10 AdvancedPrintOptionActivity 打印机高级设置
-
-
 
         setContentView(R.layout.activity_advanced_print_option);
         tableLayout_options = (TableLayout)findViewById(R.id.tableLayout_options);
@@ -41,12 +38,11 @@ public class AdvancedPrintOptionActivity extends BaseActivity {
 
         Intent intent = getIntent();
 
-
         QueryPrinterOptonsTask<Void> task = new QueryPrinterOptonsTask<Void>() {
 
             @Override
             protected void onPostExecute(List<PrinterOptionItem> printerOptionItems) {
-                if(printerOptionItems == null){
+                if(printerOptionItems == null) {
                     Toast.makeText(AdvancedPrintOptionActivity.this, getResources().getString(R.string.query_error) + " " + ERROR, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -56,18 +52,13 @@ public class AdvancedPrintOptionActivity extends BaseActivity {
             }
         };
         task.start("HP_LaserJet_Professional_P1108");
-
-
     }
 
-    /**
-     * 添加每一项配置界面
-     */
     private void addItems() {
 
         LayoutInflater inflater = LayoutInflater.from(AdvancedPrintOptionActivity.this);
 
-        for(PrinterOptionItem item: printerOptionItems){
+        for(PrinterOptionItem item: printerOptionItems) {
             int def = item.getDef();
             String name = item.getName();
             List<String> list = item.getOption();
@@ -83,7 +74,7 @@ public class AdvancedPrintOptionActivity extends BaseActivity {
             ArrayAdapter<String> adapter=new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
             spinner_option.setAdapter(adapter);
             spinner_option.setSelection(item.getDef());
-            spinner_option.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            spinner_option.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -93,11 +84,8 @@ public class AdvancedPrintOptionActivity extends BaseActivity {
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-
                 }
             });
-
-
         }
     }
 

@@ -1,5 +1,4 @@
 <resources>
-    <!-- TODO: 完善英文翻译 -->
     <string name="app_name">LocalPrintService</string>
     <string name="print_manager">printer manager</string>
     <string name="action_system_print_service">system_print_service</string>

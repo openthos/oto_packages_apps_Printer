@@ -13,10 +13,6 @@ public class CancelPrintTask<Progress, Result> extends CommandTask<String, Progr
 
     @Override
     protected Result handleCommand(List<String> stdOut, List<String> stdErr) {
-        //需要注意，处理CUPS没启动的情况，先启动CUPS再重新执行一遍。
-
-
-
         return null;
     }
 

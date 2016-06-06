@@ -3,7 +3,6 @@ package com.github.openthos.printer.localprint.model;
 import android.print.PrintAttributes;
 
 /**
- * 打印机状态
  * Created by bboxh on 2016/5/29.
  */
 public class PrinterStateItem {

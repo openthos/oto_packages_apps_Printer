@@ -23,12 +23,7 @@ import com.github.openthos.printer.localprint.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * 欢迎界面，实为检测是否初始化
- */
 public class WelcomeActivity extends Activity {
-
-    // TODO: 首次检测页面待改为Dialog显示，可写在BaseActivity中
 
     private static final String TAG = "WelcomeActivity";
     private TextView textView;
@@ -46,21 +41,14 @@ public class WelcomeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     private void init() {
         initUI();
-
-        if(APP.IS_FIRST_RUN){
-
-
-        }else{
+        if(!APP.IS_FIRST_RUN) {
             Toast.makeText(WelcomeActivity.this, R.string.no_need_for_initialization, Toast.LENGTH_SHORT).show();
             finish();
         }
-
-
     }
 
     private void initUI() {
@@ -80,7 +68,7 @@ public class WelcomeActivity extends Activity {
             public void onClick(View v) {
                 textView.setText(R.string.initializing_print_service);
                 progressbar.setVisibility(ProgressBar.VISIBLE);
-                new InitTask<Void>(){
+                new InitTask<Void>() {
                     @Override
                     protected void onPostExecute(Boolean aBoolean) {
                         start_init(aBoolean, ERROR);
@@ -99,8 +87,7 @@ public class WelcomeActivity extends Activity {
     }
 
     private void start_init(boolean flag, String ERROR) {
-        if(flag){
-
+        if(flag) {
             Intent intent = new Intent(APP.BROADCAST_ALL_ACTIVITY);
             intent.putExtra(APP.TASK, APP.TASK_INIT_FINISH);
             sendBroadcast(intent);
@@ -116,13 +103,10 @@ public class WelcomeActivity extends Activity {
             Toast.makeText(WelcomeActivity.this, R.string.initialization_suceess, Toast.LENGTH_SHORT).show();
             finish();
 
-        }else{
+        } else {
             progressbar.setVisibility(ProgressBar.INVISIBLE);
             textView.setText(R.string.initialization_failure + "\n" + ERROR);
             button_ok.setClickable(true);
         }
-
     }
-
-
 }

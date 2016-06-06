@@ -32,7 +32,7 @@ public class APP extends Application{
     public static final String MESSAGE = "message";
     public static final String RESULT = "result";
     public static final String JOBID = "jobid";
-    public static final String COMPONENT_PATH = "/component_17";        //文件所在文件夹
+    public static final String COMPONENT_PATH = "/component_17";
 
     public static boolean MANAGEMENT_ACTIVITY_ON_TOP = false;
 
@@ -60,13 +60,8 @@ public class APP extends Application{
         IS_LOGE = true;
         IS_LOGD = true;
 
-        //读取SharedPreferences，检测是否是第一次运行
-
         SharedPreferences sp = this.getSharedPreferences(GLOBAL, ContextWrapper.MODE_PRIVATE);
         boolean first_run = sp.getBoolean(FIRST_RUN, true);
-
-        // 屏蔽首次运行检测
-        //first_run = false;
 
         if (first_run) {
             IS_FIRST_RUN = true;
@@ -84,5 +79,4 @@ public class APP extends Application{
     public static Context getApplicatioContext(){
         return context;
     }
-
 }
