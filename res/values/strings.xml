@@ -44,4 +44,14 @@
     <string name="query_error">Query Error</string>
     <string name="confirm_delete">Confirm delete ?</string>
     <string name="please_confirm_component">Please confirm the date file in /sdcard dictionary!</string>
+
+    <string name="printer_paper">Paper</string>
+    <string name="printer_direction">Direction</string>
+    <string name="printer_color">Color</string>
+    <string name="printer_dual_face">Dual Face</string>
+
+    <string name="printer_name">Printer Name</string>
+    <string name="printer_info">INFO</string>
+    <string name="printer_option">option</string>
+    <string name="medium_text">Medium Text</string>
 </resources>

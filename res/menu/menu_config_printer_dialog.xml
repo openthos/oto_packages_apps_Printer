@@ -6,17 +6,17 @@
         android:id="@+id/action_test_page"
         android:orderInCategory="99"
         android:title="@string/test_page"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_tuning"
         android:orderInCategory="100"
         android:title="@string/tuning"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_delete"
         android:orderInCategory="101"
         android:title="@string/delete"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 </menu>

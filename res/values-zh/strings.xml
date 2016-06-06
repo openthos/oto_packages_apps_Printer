@@ -46,4 +46,14 @@
     <string name="printing">打印中</string>
     <string name="query_error">查询出错</string>
     <string name="start_printing">开始打印</string>
+
+    <string name="printer_paper">纸张</string>
+    <string name="printer_direction">方向</string>
+    <string name="printer_color">色彩</string>
+    <string name="printer_dual_face">双面打印</string>
+
+    <string name="printer_name">Printer Name</string>
+    <string name="printer_info">INFO</string>
+    <string name="printer_option">option</string>
+    <string name="medium_text">Medium Text</string>
 </resources>

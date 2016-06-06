@@ -6,11 +6,11 @@
         android:id="@+id/action_system_print_service"
         android:orderInCategory="99"
         android:title="@string/action_system_print_service"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 </menu>
