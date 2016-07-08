@@ -15,57 +15,90 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Base command task template.
  * Created by bboxh on 2016/5/14.
  */
 public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Params, Progress, Result> {
 
+    /**
+     * Use the lock when starting CUPS.
+     */
+    private static final Boolean IS_STARTING_CUPS = false;
+
+    /**
+     * The ERROR value can be shown to the user.
+     */
+    protected String ERROR = "";
+
     private boolean RUN_AGAIN = true;
-    private List<String> stdOut = new ArrayList<String>();
-    private List<String> stdErr = new ArrayList<String>();
-    protected  String ERROR = "";
-    private String[] cmd = null;
-    private Thread cupsdThread = null;
+
+    private List<String> mStdOut = new ArrayList<>();
+    private List<String> mStdErr = new ArrayList<>();
+    private String[] mCmd = null;
 
     @Override
     protected final Result doInBackground(Params... params) {
         boolean flag = beforeCommand();
-        if(!flag)
+        if (!flag)
             return null;
 
-        cmd = setCmd(params);
+        mCmd = setCmd(params);
 
         Result result = null;
-        while(RUN_AGAIN) {
+
+        //Start CUPS when CUPS is not running ,then run the cmd again.
+        while (RUN_AGAIN) {
             RUN_AGAIN = false;
-            runCommand(cmd);
-            result = handleCommand(stdOut, stdErr);
+            runCommand(mCmd);
+            result = handleCommand(mStdOut, mStdErr);
         }
         return result;
     }
 
-    protected final void runCommandAgain(){
-        if(cmd != null)
+    /**
+     * Run the cmd again and need to return immediately.
+     * After the method finished, CommandTask will call handleCommand() automatically.
+     */
+    protected final void runCommandAgain() {
+        if (mCmd != null)
             RUN_AGAIN = true;
     }
 
+    /**
+     * Called before the cmd executed, in doInBackground method.
+     *
+     * @return boolean
+     */
     protected boolean beforeCommand() {
+
         return true;
     }
 
+    /**
+     * Set the command to execute.
+     *
+     * @param params mCmd
+     * @return cmds
+     */
     protected abstract String[] setCmd(Params... params);
 
-    private void runCommand(String[] cmd) {
+    /**
+     * Execute the command.
+     *
+     * @param cmd mCmd
+     */
+    protected void runCommand(String[] cmd) {
 
-        if(cmd != null && cmd.length == 0) {
+        if (cmd != null && cmd.length == 0) {
             return;
         }
-        LogUtils.d(TAG, "cmd => " + Arrays.toString(cmd));
+        LogUtils.d(TAG, "mCmd => " + Arrays.toString(cmd));
 
-        stdOut.clear();
-        stdErr.clear();
+        mStdOut.clear();
+        mStdErr.clear();
 
         try {
-            File file = new File(getWorkPath());
+            File file = new File(bindWorkPath());
             final Process p = Runtime.getRuntime().exec(cmd, null, file);
 
             final Lock lock_in = new Lock();
@@ -75,11 +108,12 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                 @Override
                 public void run() {
 
-                    BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String line = null;
+                    BufferedReader in
+                            = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String line;
                     try {
                         while ((line = in.readLine()) != null) {
-                            stdOut.add(line);
+                            mStdOut.add(line);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -89,6 +123,8 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                         lock_in.notify();
                         lock_in.setFinish(true);
                     }
+
+
                 }
             };
 
@@ -96,11 +132,12 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                 @Override
                 public void run() {
 
-                    BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    String line = null;
+                    BufferedReader in
+                            = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    String line;
                     try {
-                        while((line = in.readLine()) != null) {
-                            stdErr.add(line);
+                        while ((line = in.readLine()) != null) {
+                            mStdErr.add(line);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -117,29 +154,42 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
             new Thread(taskError).start();
 
             synchronized (lock_in) {
-                if(!lock_in.isFinish()) {
+                if (!lock_in.isFinish()) {
                     lock_in.wait();
                 }
             }
 
             synchronized (lock_error) {
-                if(!lock_error.isFinish()) {
+                if (!lock_error.isFinish()) {
                     lock_error.wait();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+
+
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG,"stdOut " + stdOut.toString());
-        Log.d(TAG,"stdErr " + stdErr.toString());
+        Log.d(TAG, "mStdOut " + mStdOut.toString());
+        Log.d(TAG, "mStdErr " + mStdErr.toString());
+
     }
 
+    /**
+     * Execute after the cmd executed, in doInBackground method.
+     *
+     * @param stdOut standard output
+     * @param stdErr error output
+     * @return Result
+     */
     protected abstract Result handleCommand(List<String> stdOut, List<String> stdErr);
 
-    protected String getWorkPath() {
+    /**
+     * Bind the work path which can be overwritten.
+     *
+     * @return the work path
+     */
+    protected String bindWorkPath() {
         return FileUtils.getComponentPath();
     }
 
@@ -155,12 +205,18 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         }
     }
 
+    /**
+     * Check the CUPS running status.
+     *
+     * @return boolean
+     */
     protected boolean cupsIsRunning() {
         boolean flag = false;
 
-        runCommand(new String[] {"sh", "proot.sh", "lpstat", "-r"});
-        for(String line: stdOut) {
-            if(line.contains("scheduler is running")) {
+        runCommand(new String[]{"sh", "proot.sh", "lpstat", "-r"});
+        //  2016/5/15 Check the CUPS running status A1
+        for (String line : mStdOut) {
+            if (line.contains("scheduler is running")) {
                 flag = true;
                 break;
             }
@@ -168,11 +224,18 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         return flag;
     }
 
+    /**
+     * Check the CUPS running status.
+     * Another method.
+     *
+     * @return boolean
+     */
     protected boolean cupsIsRunning1() {
         boolean flag = false;
         runCommand(new String[]{"sh", "proot.sh", "ps", "|", "grep", "cupsd"});
-        for(String line: stdOut) {
-            if(line.contains("cupsd.conf")) {
+        //check the CUPS process
+        for (String line : mStdOut) {
+            if (line.contains("cupsd.conf")) {
                 flag = true;
                 break;
             }
@@ -180,17 +243,37 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
         return flag;
     }
 
+    /**
+     * Start cups
+     *
+     * @return the result
+     */
     protected boolean startCups() {
 
-        if(cupsIsRunning()) {
-            return true;
-        }
+        // Prevent repeated start CUPS.
+        synchronized (IS_STARTING_CUPS) {
 
-        File file = new File(getWorkPath());
-        try {
-            APP.cupsdProcess = Runtime.getRuntime().exec(new String[]{"sh", "proot.sh" ,"cupsd"}, null, file);
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (cupsIsRunning()) {
+                return true;
+            }
+
+            //runCommand(new String[]{"sh", "proot.sh" ,"cupsd"});
+
+            File file = new File(bindWorkPath());
+            try {
+                APP.cupsdProcess = Runtime.getRuntime()
+                        .exec(new String[]{"sh", "proot.sh", "cupsd"}, null, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         }
 
         try {
@@ -199,12 +282,19 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
             e.printStackTrace();
         }
 
+        // 2016/5/15 Start cups A2
         return cupsIsRunning();
     }
 
-    protected void killCups(){
-        /*if(cupsdProcess != null) {
+    /**
+     * Shutdown cups
+     */
+    protected void killCups() {
+        // TODO: 2016/5/15 Shutdown CUPS A3
+        /*if (cupsdProcess != null) {
             cupsdProcess.destroy();
         }*/
+
     }
+
 }

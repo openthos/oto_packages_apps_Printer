@@ -1,20 +1,17 @@
 package com.github.openthos.printer.localprint.util;
 
+
 import android.os.ParcelFileDescriptor;
 
 import com.github.openthos.printer.localprint.APP;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
+ * FileUtils
  * Created by bboxh on 2016/4/12.
  */
 public class FileUtils {
@@ -22,7 +19,12 @@ public class FileUtils {
 
     private static final String TAG = "FileUtils";
 
-    public static boolean copyFile(String docu_file_path,ParcelFileDescriptor data){
+    /**
+     * @param docu_file_path String
+     * @param data           ParcelFileDescriptor
+     * @return success or failure
+     */
+    public static boolean copyFile(String docu_file_path, ParcelFileDescriptor data) {
 
         boolean flag = false;
 
@@ -35,7 +37,10 @@ public class FileUtils {
         outfile.delete();
 
         FileInputStream file = new ParcelFileDescriptor.AutoCloseInputStream(data);
+
         byte[] bbuf = new byte[1024];
+
+        //save the actual size of reading
         int hasRead = 0;
 
         try {
@@ -43,7 +48,11 @@ public class FileUtils {
             FileOutputStream outStream = new FileOutputStream(outfile);
 
             while ((hasRead = file.read(bbuf)) > 0) {
+
+                //Converts the byte array to a string and send out
+                //System.out.print(new String(bbuf, 0, hasRead));
                 outStream.write(bbuf);
+
             }
 
             flag = true;
@@ -54,6 +63,7 @@ public class FileUtils {
             e.printStackTrace();
             flag = false;
         } finally {
+            //Close the stream in finally ,may be safety.
             try {
                 file.close();
             } catch (IOException e) {
@@ -62,20 +72,37 @@ public class FileUtils {
         }
 
         return flag;
+
     }
 
+    /**
+     * Get the absolute path of the file to be printed
+     *
+     * @param s generate a file name by s
+     * @return
+     */
     public static String getDocuFilePath(String s) {
-        return getComponentPath() + getDocuFileName(s) ;
+        return getComponentPath() + getDocuFileName(s);
     }
 
     public static String getDocuFileName(String s) {
-        return  "/" + s + "_" + APP.DOCU_FILE;
+        return "/" + s + "_" + APP.DOCU_FILE;
     }
 
+    /**
+     * Get the CUPS running path.
+     *
+     * @return
+     */
     public static String getComponentPath() {
         return getFilePath() + APP.COMPONENT_PATH;
     }
 
+    /**
+     * Get the path of the app files.
+     *
+     * @return
+     */
     public static String getFilePath() {
         return APP.getApplicatioContext().getFilesDir().getAbsolutePath();
     }

@@ -6,30 +6,28 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.github.openthos.printer.localprint.APP;
 import com.github.openthos.printer.localprint.R;
-import com.github.openthos.printer.localprint.task.BaseTask;
 import com.github.openthos.printer.localprint.task.InitTask;
-import com.github.openthos.printer.localprint.util.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
-
+/**
+ * Welcome page is responsible for initializing.
+ */
 public class WelcomeActivity extends Activity {
 
+    // TODO: First run detcting page can be changed to a dialog, can be written in BaseActivity
+
     private static final String TAG = "WelcomeActivity";
-    private TextView textView;
-    private Button button_cancel;
-    private Button button_ok;
-    private ProgressBar progressbar;
+    private TextView mTextView;
+    private Button mButtonCancel;
+    private Button mButtonOk;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,36 +43,40 @@ public class WelcomeActivity extends Activity {
 
     private void init() {
         initUI();
-        if(!APP.IS_FIRST_RUN) {
+
+        if (APP.IS_FIRST_RUN) {
+
+        } else {
             Toast.makeText(WelcomeActivity.this, R.string.no_need_for_initialization, Toast.LENGTH_SHORT).show();
             finish();
         }
+
     }
 
     private void initUI() {
-        textView = (TextView)findViewById(R.id.textView);
-        progressbar = (ProgressBar)findViewById(R.id.progressBar);
-        button_cancel = (Button)findViewById(R.id.button_cancel);
-        button_ok = (Button)findViewById(R.id.button_ok);
-        button_cancel.setOnClickListener(new View.OnClickListener() {
+        mTextView = (TextView) findViewById(R.id.textView);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mButtonCancel = (Button) findViewById(R.id.button_cancel);
+        mButtonOk = (Button) findViewById(R.id.button_ok);
+        mButtonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exit();
             }
         });
 
-        button_ok.setOnClickListener(new View.OnClickListener() {
+        mButtonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textView.setText(R.string.initializing_print_service);
-                progressbar.setVisibility(ProgressBar.VISIBLE);
+                mTextView.setText(R.string.initializing_print_service);
+                mProgressBar.setVisibility(ProgressBar.VISIBLE);
                 new InitTask<Void>() {
                     @Override
                     protected void onPostExecute(Boolean aBoolean) {
                         start_init(aBoolean, ERROR);
                     }
                 }.start();
-                button_ok.setClickable(false);
+                mButtonOk.setClickable(false);
             }
         });
     }
@@ -87,26 +89,32 @@ public class WelcomeActivity extends Activity {
     }
 
     private void start_init(boolean flag, String ERROR) {
-        if(flag) {
+        if (flag) {
+
             Intent intent = new Intent(APP.BROADCAST_ALL_ACTIVITY);
             intent.putExtra(APP.TASK, APP.TASK_INIT_FINISH);
             sendBroadcast(intent);
 
             APP.IS_FIRST_RUN = false;
-            SharedPreferences sp = WelcomeActivity.this.getSharedPreferences(APP.GLOBAL, ContextWrapper.MODE_PRIVATE);
+            SharedPreferences sp = WelcomeActivity.this.getSharedPreferences(APP.GLOBAL,
+                                                            ContextWrapper.MODE_PRIVATE);
             SharedPreferences.Editor editer = sp.edit();
-            editer.putBoolean(APP.FIRST_RUN, false);
+            editer.putString(APP.FIRST_RUN, APP.COMPONENT_PATH);
             editer.apply();
 
-            progressbar.setVisibility(ProgressBar.INVISIBLE);
-            textView.setText(R.string.initialization_suceess);
-            Toast.makeText(WelcomeActivity.this, R.string.initialization_suceess, Toast.LENGTH_SHORT).show();
+            mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+            mTextView.setText(R.string.initialization_suceess);
+            Toast.makeText(WelcomeActivity.this
+                    , R.string.initialization_suceess, Toast.LENGTH_SHORT).show();
             finish();
 
         } else {
-            progressbar.setVisibility(ProgressBar.INVISIBLE);
-            textView.setText(R.string.initialization_failure + "\n" + ERROR);
-            button_ok.setClickable(true);
+            mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+            mTextView.setText(getString(R.string.initialization_failure) + "\n" + ERROR);
+            mButtonOk.setClickable(true);
         }
+
     }
+
+
 }

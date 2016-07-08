@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- TODO: Perfect Chinese translation -->
     <string name="app_name">本地打印服务</string>
     <string name="print_manager">打印管理</string>
     <string name="action_settings">设置</string>
@@ -38,7 +39,7 @@
     <string name="delete_failed">删除失败</string>
     <string name="deleted_successfully">删除成功</string>
     <string name="deleting">删除中</string>
-    <string name="please_confirm_component">请确认数据包在 /sdcard 目录</string>
+    <string name="please_confirm_component">请确认数据包在 /system 目录并重试！</string>
     <string name="print_copy_file_failed">拷贝文件失败</string>
     <string name="print_error">打印出错</string>
     <string name="print_failed">打印失败</string>
@@ -46,14 +47,39 @@
     <string name="printing">打印中</string>
     <string name="query_error">查询出错</string>
     <string name="start_printing">开始打印</string>
-
-    <string name="printer_paper">纸张</string>
-    <string name="printer_direction">方向</string>
-    <string name="printer_color">色彩</string>
-    <string name="printer_dual_face">双面打印</string>
-
-    <string name="printer_name">Printer Name</string>
-    <string name="printer_info">INFO</string>
-    <string name="printer_option">option</string>
-    <string name="medium_text">Medium Text</string>
+    <string name="color_mode">色彩</string>
+    <string name="color">彩色</string>
+    <string name="black_white">黑白</string>
+    <string name="duplx_mode">打印模式</string>
+    <string name="paper_size">纸张大小</string>
+    <string name="update_failed">更新失败</string>
+    <string name="update_success">更新成功</string>
+    <string name="updating">更新中</string>
+    <string name="no_double_side">单面打印</string>
+    <string name="action_print_job_manager">打印任务管理器</string>
+    <string name="device">设备</string>
+    <string name="document_name">文档名</string>
+    <string name="operation">操作</string>
+    <string name="pause_all">暂停所有</string>
+    <string name="size">大小</string>
+    <string name="start_all">开始所有</string>
+    <string name="status">状态</string>
+    <string name="cancel_all">取消所有</string>
+    <string name="ready">就绪</string>
+    <string name="paused">已暂停</string>
+    <string name="pause_error">暂停失败</string>
+    <string name="pause">暂停</string>
+    <string name="print_info">打印信息</string>
+    <string name="remove">移除</string>
+    <string name="resume">恢复</string>
+    <string name="resume_error">恢复出错</string>
+    <string name="resumed">已恢复</string>
+    <string name="start_error">开始出错</string>
+    <string name="started">已开始</string>
+    <string name="unknown">未知</string>
+    <string name="waiting_for_printer">等待打印机就绪</string>
+    <string name="cancel_error">暂停出错</string>
+    <string name="canceled">已取消</string>
+    <string name="error">错误</string>
+    <string name="option">选项</string>
 </resources>

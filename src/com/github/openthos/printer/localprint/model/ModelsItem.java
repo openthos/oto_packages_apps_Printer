@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * The PPD driver info returned from CUPS.
  * Created by bboxh on 2016/5/16.
  */
 public class ModelsItem {

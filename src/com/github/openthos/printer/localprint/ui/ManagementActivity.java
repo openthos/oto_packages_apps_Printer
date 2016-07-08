@@ -1,5 +1,6 @@
 package com.github.openthos.printer.localprint.ui;
 
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -7,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,16 +33,23 @@ import com.github.openthos.printer.localprint.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class ManagementActivity extends BaseActivity {
 
     private static final String TAG = "ManagementActivity";
+
+    /**
+     * Whether is detecting new printers.
+     */
     private boolean IS_DETECTING = false;
-    private ListView listview;
-    private ManagementAdapter adapter;
-    private final List<ManagementListItem> listItem = new ArrayList<>();;
+
+    private final List<ManagementListItem> mListItem = new LinkedList<>();
+
+    private ListView mListview;
+    private ManagementAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,19 +60,22 @@ public class ManagementActivity extends BaseActivity {
     }
 
     private void init() {
+
+
         setContentView(R.layout.activity_management);
-        listview = (ListView)findViewById(R.id.listView);
-        adapter = new ManagementAdapter(this, listItem);
-        adapter.initList();
-        listview.setAdapter(adapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListview = (ListView) findViewById(R.id.listView);
+        mAdapter = new ManagementAdapter(this, mListItem);
+        mAdapter.initList();
+        mListview.setAdapter(mAdapter);
+        mListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ManagementListItem item = adapter.getItem(position);
+
+                ManagementListItem item = mAdapter.getItem(position);
                 LogUtils.d(TAG, "onItemClick -> " + item.toString());
-                if(item.getType() == ManagementListItem.TYPE_ADDED_PRINTER) {
+                if (item.getType() == ManagementListItem.TYPE_ADDED_PRINTER) {
                     showConfigDialog(item);
-                } else if(item.getType() == ManagementListItem.TYPE_LOCAL_PRINTER) {
+                } else if (item.getType() == ManagementListItem.TYPE_LOCAL_PRINTER) {
                     showAddLocalDialog(item);
                 }
             }
@@ -73,6 +83,7 @@ public class ManagementActivity extends BaseActivity {
     }
 
     private void showConfigDialog(ManagementListItem item) {
+
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag(ConfigPrinterDialogFragment.ITEM);
         if (prev != null) {
@@ -86,6 +97,11 @@ public class ManagementActivity extends BaseActivity {
         ft.commitAllowingStateLoss();
     }
 
+    /**
+     * Show the Dialog of adding local printers.
+     *
+     * @param deviceItem ManagementListItem
+     */
     private void showAddLocalDialog(final ManagementListItem deviceItem) {
 
         final Map<String, List<PPDItem>> models = new HashMap<>();
@@ -101,36 +117,41 @@ public class ManagementActivity extends BaseActivity {
         tipBrand.setText(R.string.select_brand);
         Spinner brand = new Spinner(this);
         final List<String> brandList = new ArrayList<String>();
-        final ArrayAdapter<String> brandAdapter=new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, brandList);
+        final ArrayAdapter<String> brandAdapter = new ArrayAdapter<String>(this,
+                                       android.R.layout.simple_spinner_dropdown_item, brandList);
         brand.setAdapter(brandAdapter);
 
         TextView tipModel = new TextView(this);
         tipModel.setText(R.string.select_model);
         final Spinner model = new Spinner(this);
         final List<PPDItem> modelList = new ArrayList<PPDItem>();
-        final ArrayAdapter<PPDItem> modelAdapter=new ArrayAdapter<PPDItem>(this, android.R.layout.simple_spinner_dropdown_item, modelList);
+        final ArrayAdapter<PPDItem> modelAdapter = new ArrayAdapter<PPDItem>(this,
+                                        android.R.layout.simple_spinner_dropdown_item, modelList);
         model.setAdapter(modelAdapter);
 
         brand.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 modelList.clear();
-                modelList.addAll(models.get(brandList.get(position)) );
+                modelList.addAll(models.get(brandList.get(position)));
                 modelAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
         model.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
@@ -153,17 +174,18 @@ public class ManagementActivity extends BaseActivity {
 
         dialog.show();
 
+        //Manually set the listener, aim to click dialog does not disappear
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             private boolean PRESSED = false;
 
             @Override
             public void onClick(View v) {
-                if(PRESSED){
+                if (PRESSED) {
                     Toast.makeText(ManagementActivity.this, R.string.adding, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                Map<String,String> p = new HashMap<>();
+                Map<String, String> p = new HashMap<>();
                 p.put("name", name.getText().toString());
                 p.put("model", modelList.get(model.getSelectedItemPosition()).getModel());
                 p.put("url", deviceItem.getPrinteritem().getURL());
@@ -174,32 +196,42 @@ public class ManagementActivity extends BaseActivity {
                     @Override
                     protected void onPostExecute(Boolean aBoolean) {
                         if (aBoolean) {
-                            Toast.makeText(ManagementActivity.this, R.string.add_success, Toast.LENGTH_SHORT).show();
-                            adapter.refreshAddedPrinters();
+                            Toast.makeText(ManagementActivity.this
+                                    , R.string.add_success, Toast.LENGTH_SHORT).show();
+                            mAdapter.refreshAddedPrinters();
                             dialog.dismiss();
                         } else {
-                            Toast.makeText(ManagementActivity.this, R.string.add_fail, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ManagementActivity.this
+                                    , R.string.add_fail, Toast.LENGTH_SHORT).show();
                         }
                         PRESSED = false;
                     }
                 };
 
                 task.start(p);
+
             }
+
         });
+
 
         new SearchModelsTask<Void, Void>() {
             @Override
             protected void onPostExecute(ModelsItem modelsItem) {
-                if(modelsItem == null) {
-                    Toast.makeText(ManagementActivity.this, getResources().getString(R.string.query_error) + " " + ERROR, Toast.LENGTH_SHORT).show();
+
+                if (modelsItem == null) {
+                    Toast.makeText(ManagementActivity.this, getResources()
+                       .getString(R.string.query_error) + " " + ERROR, Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 brandList.addAll(modelsItem.getBrand());
                 models.putAll(modelsItem.getModels());
                 brandAdapter.notifyDataSetChanged();
             }
         }.start();
+
+
     }
 
     @Override
@@ -215,7 +247,8 @@ public class ManagementActivity extends BaseActivity {
     }
 
     private void handlerIntent(Intent intent) {
-        if(intent == null) {
+
+        if (intent == null) {
             return;
         }
 
@@ -224,25 +257,34 @@ public class ManagementActivity extends BaseActivity {
 
         switch (task) {
             case APP.TASK_ADD_NEW_PRINTER:
-                detect_printers();
+                detectPrinters();
                 break;
             case APP.TASK_REFRESH_ADDED_PRINTERS:
-                adapter.refreshAddedPrinters();
+                mAdapter.refreshAddedPrinters();
                 break;
             case APP.TASK_DEFAULT:
                 break;
         }
     }
 
-    private void detect_printers() {
-        if(IS_DETECTING) {
+    private void detectPrinters() {
+
+        if (IS_DETECTING) {
             Toast.makeText(ManagementActivity.this, R.string.searching, Toast.LENGTH_SHORT).show();
             return;
         }
+
         IS_DETECTING = true;
-        adapter.startDetecting();
+
+        mAdapter.startDetecting();
+
     }
 
+    /**
+     * Set the flag about whether is detecting new printers.
+     *
+     * @param IS_DETECTING boolean
+     */
     public void setIS_DETECTING(boolean IS_DETECTING) {
         this.IS_DETECTING = IS_DETECTING;
     }
@@ -250,13 +292,13 @@ public class ManagementActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        APP.MANAGEMENT_ACTIVITY_ON_TOP = true;
+        APP.IS_MANAGEMENT_ACTIVITY_ON_TOP = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        APP.MANAGEMENT_ACTIVITY_ON_TOP = false;
+        APP.IS_MANAGEMENT_ACTIVITY_ON_TOP = false;
     }
 
     @Override
@@ -274,13 +316,20 @@ public class ManagementActivity extends BaseActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+
+        if (id == R.id.action_print_job) {
+            Intent intent = new Intent(ManagementActivity.this, JobManagerActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
         if (id == R.id.action_settings) {
             Intent intent = new Intent(ManagementActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
 
-        if(id == R.id.action_system_print_service) {
+        if (id == R.id.action_system_print_service) {
             Intent intent = new Intent(Settings.ACTION_PRINT_SETTINGS);
             startActivity(intent);
             return true;
@@ -288,4 +337,5 @@ public class ManagementActivity extends BaseActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

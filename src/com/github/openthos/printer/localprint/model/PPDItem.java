@@ -1,6 +1,7 @@
 package com.github.openthos.printer.localprint.model;
 
 /**
+ * Describe the PPD driver when adding a printer.
  * Created by bboxh on 2016/5/23.
  */
 public class PPDItem {

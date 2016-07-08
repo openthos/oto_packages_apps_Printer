@@ -10,9 +10,10 @@ import android.view.WindowManager;
 
 import com.github.openthos.printer.localprint.APP;
 import com.github.openthos.printer.localprint.R;
-import com.github.openthos.printer.localprint.task.CancelPrintTask;
+import com.github.openthos.printer.localprint.model.JobItem;
+import com.github.openthos.printer.localprint.model.PrinterOptionItem;
+import com.github.openthos.printer.localprint.task.JobCancelTask;
 import com.github.openthos.printer.localprint.task.PrintTask;
-import com.github.openthos.printer.localprint.task.StateTask;
 import com.github.openthos.printer.localprint.ui.ManagementActivity;
 import com.github.openthos.printer.localprint.util.FileUtils;
 import com.github.openthos.printer.localprint.util.LogUtils;
@@ -26,32 +27,48 @@ public class OpenthosPrintService extends PrintService {
 
     private static final String TAG = "OpenthosPrintService";
 
+    /**
+     * System ask for searching printers
+     *
+     * @return PrinterDiscoverySession
+     */
     @Override
     protected PrinterDiscoverySession onCreatePrinterDiscoverySession() {
         return new PrintDiscoverySession(this);
     }
 
+    /**
+     * System ask for canceling a printJob
+     *
+     * @param printJob PrintJob
+     */
     @Override
     protected void onRequestCancelPrintJob(final PrintJob printJob) {
-        // 取消打印任务
 
-        CancelPrintTask<Void, Void> task = new CancelPrintTask<Void, Void>() {
+        JobCancelTask<Void> task = new JobCancelTask<Void>() {
             @Override
-            protected void onPostExecute(Void aVoid) {
+            protected void onPostExecute(Boolean aBoolean) {
                 printJob.cancel();
             }
         };
 
         String jobId = printJob.getTag();
 
-        if(jobId == null) {
+        if (jobId == null) {
             printJob.cancel();
         } else {
-            task.start(jobId);
+            JobItem item = new JobItem();
+            item.setJobId(Integer.parseInt(jobId));
+            task.start(item);
         }
 
     }
 
+    /**
+     * System send out a new printJob.
+     *
+     * @param printJob PrintJob
+     */
     @Override
     protected void onPrintJobQueued(final PrintJob printJob) {
         LogUtils.d(TAG, "onPrintJobQueued()");
@@ -61,12 +78,19 @@ public class OpenthosPrintService extends PrintService {
         Map<String, String> map = new HashMap<>();
         map.put(PrintTask.LP_PRINTER, printJob.getInfo().getPrinterId().getLocalId());
         map.put(PrintTask.LP_FILE, FileUtils.getDocuFileName(printJob.getId().toString()));
-        map.put(PrintTask.LP_MEDIA, StateTask.Media2cups(printJob.getInfo().getAttributes().getMediaSize()));
+        map.put(PrintTask.LP_MEDIA,
+                PrinterOptionItem.media2cups(printJob.getInfo().getAttributes().getMediaSize()));
+        //map.put(PrintTask.LP_RESOLUTION,
+        //  PrinterOptionItem.resulution2cups(printJob.getInfo().getAttributes().getResolution()));
+        //map.put(PrintTask.LP_COLOR, "");
+        //map.put(PrintTask.LP_LANDSCAPE,"");     //System may has handled
         map.put(PrintTask.LP_COPIES, String.valueOf(printJob.getInfo().getCopies()));
         map.put(PrintTask.LP_LABEL, printJob.getDocument().getInfo().getName());
 
+        //Send a printing job.
+
         boolean flag = FileUtils.copyFile(docu_file_path, printJob.getDocument().getData());
-        if(!flag) {
+        if (!flag) {
             printJob.fail(getResources().getString(R.string.print_copy_file_failed));
             return;
         }
@@ -75,6 +99,8 @@ public class OpenthosPrintService extends PrintService {
 
             @Override
             protected void onPreExecute() {
+
+                //Must operate printJob in the main thread.
                 printJob.start();
             }
 
@@ -83,9 +109,10 @@ public class OpenthosPrintService extends PrintService {
 
                 new File(docu_file_path).delete();
 
-                if(jobId == null) {
+                if (jobId == null) {
                     printJob.fail(ERROR);
                 } else {
+                    //Fill the job id got from CUPS.
                     printJob.setTag(String.valueOf(jobId));
                     printJob.complete();
                 }
@@ -101,10 +128,18 @@ public class OpenthosPrintService extends PrintService {
         super.onCreate();
     }
 
+    /**
+     * Receive a task in the intent.
+     *
+     * @param intent  Intent
+     * @param flags   int
+     * @param startId int
+     * @return handle killed event
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if(intent == null) {
+        if (intent == null) {
             return START_STICKY;
         }
 
@@ -112,7 +147,7 @@ public class OpenthosPrintService extends PrintService {
 
         LogUtils.d(TAG, "task -> " + task);
 
-        switch(task) {
+        switch (task) {
             case APP.TASK_DETECT_USB_PRINTER:
                 detectPrinter();
                 break;
@@ -120,12 +155,17 @@ public class OpenthosPrintService extends PrintService {
                 showAddPrinterDialog();
                 break;
             case APP.TASK_JOB_RESULT:
-                handleJobResult(intent.getBooleanExtra(APP.RESULT, false), intent.getStringExtra(APP.JOBID), intent.getStringExtra(APP.MESSAGE));
+                handleJobResult(intent.getBooleanExtra(APP.RESULT, false)
+                        , intent.getStringExtra(APP.JOBID), intent.getStringExtra(APP.MESSAGE));
                 break;
             case APP.TASK_DEFAULT:
                 break;
         }
 
+        /**
+         * START_STICKY
+         * when the service is killed , it will start automatically,not keep the Intent
+         */
         return START_STICKY;
     }
 
@@ -134,18 +174,18 @@ public class OpenthosPrintService extends PrintService {
         PrintJob jobitem = null;
 
         List<PrintJob> jobs = getActivePrintJobs();
-        for(PrintJob job: jobs) {
-            if(job.getId().toString().equals(jobId)) {
+        for (PrintJob job : jobs) {
+            if (job.getId().toString().equals(jobId)) {
                 jobitem = job;
             }
         }
 
-        if(jobitem == null) {
+        if (jobitem == null) {
             LogUtils.d(TAG, "empty jobitem");
             return;
         }
 
-        if(result) {
+        if (result) {
             jobitem.complete();
         } else {
             jobitem.fail(message);
@@ -153,19 +193,23 @@ public class OpenthosPrintService extends PrintService {
 
     }
 
+    // TODO: 2016/5/10 send task to check whether there has new printer pulgged in with Android API.
     private void detectPrinter() {
         //TaskUtils.execute(new DetectPrinterTask(TAG));
     }
 
     private void showAddPrinterDialog() {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog)
+        AlertDialog.Builder builder
+                = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog)
                 .setTitle(R.string.new_printer__notification)
                 .setMessage(R.string.whether_add_new_printer)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(OpenthosPrintService.this, ManagementActivity.class);
+                        Intent intent
+                                = new Intent(OpenthosPrintService.this, ManagementActivity.class);
+                        //Context is not in the activity stack need the flag
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra(APP.TASK, APP.TASK_ADD_NEW_PRINTER);
                         APP.getApplicatioContext().startActivity(intent);
@@ -180,4 +224,5 @@ public class OpenthosPrintService extends PrintService {
         alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         alert.show();
     }
+
 }
