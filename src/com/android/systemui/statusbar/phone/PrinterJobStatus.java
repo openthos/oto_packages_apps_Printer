@@ -1,10 +1,13 @@
-package com.github.openthos.printer.localprint.model;
+package com.android.systemui.statusbar.phone;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Printer job item.
  * Created by bboxh on 2016/6/4.
  */
-public class JobItem {
+public class PrinterJobStatus implements Parcelable {
 
     /**
      * Add more when we found a new state.
@@ -27,7 +30,7 @@ public class JobItem {
     private int jobId;
     private String ERROR = "";
 
-    public JobItem() {
+    public PrinterJobStatus() {
     }
 
     public String getFileName() {
@@ -89,7 +92,7 @@ public class JobItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        JobItem jobItem = (JobItem) o;
+        PrinterJobStatus jobItem = (PrinterJobStatus) o;
 
         if (status != jobItem.status) return false;
         if (jobId != jobItem.jobId) return false;
@@ -115,7 +118,7 @@ public class JobItem {
 
     @Override
     public String toString() {
-        return "JobItem{" +
+        return "PrinterJobStatus{" +
                 "fileName='" + fileName + '\'' +
                 ", printer='" + printer + '\'' +
                 ", status=" + status +
@@ -124,4 +127,40 @@ public class JobItem {
                 ", ERROR='" + ERROR + '\'' +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.fileName);
+        dest.writeString(this.printer);
+        dest.writeInt(this.status);
+        dest.writeString(this.size);
+        dest.writeInt(this.jobId);
+        dest.writeString(this.ERROR);
+    }
+
+    protected PrinterJobStatus(Parcel in) {
+        this.fileName = in.readString();
+        this.printer = in.readString();
+        this.status = in.readInt();
+        this.size = in.readString();
+        this.jobId = in.readInt();
+        this.ERROR = in.readString();
+    }
+
+    public static final Creator<PrinterJobStatus> CREATOR = new Creator<PrinterJobStatus>() {
+        @Override
+        public PrinterJobStatus createFromParcel(Parcel source) {
+            return new PrinterJobStatus(source);
+        }
+
+        @Override
+        public PrinterJobStatus[] newArray(int size) {
+            return new PrinterJobStatus[size];
+        }
+    };
 }

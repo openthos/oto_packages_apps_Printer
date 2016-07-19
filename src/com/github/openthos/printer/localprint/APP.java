@@ -7,16 +7,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Looper;
 
-import com.github.openthos.printer.localprint.model.JobItem;
+import com.android.systemui.statusbar.phone.PrinterJobStatus;
 import com.github.openthos.printer.localprint.service.LocalPrintService;
 import com.github.openthos.printer.localprint.util.LogUtils;
 
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created by bboxh on 2016/5/10.
- */
 public class APP extends Application {
 
     private static final String TAG = "APP";
@@ -38,7 +35,7 @@ public class APP extends Application {
     /**
      * The cups executable file folder name && The name of cups data packet.
      */
-    public static final String COMPONENT_PATH = "/component_23";
+    public static final String COMPONENT_PATH = "/component_25";
 
     /**
      * The data packet position.
@@ -53,7 +50,7 @@ public class APP extends Application {
     public static final int TASK_REFRESH_ADDED_PRINTERS = 1010;
     public static final int TASK_JOB_RESULT = 1011;
     public static final int TASK_REFRESH_JOBS = 1012;
-
+    public static final int TASK_ADD_NEW_NET_PRINTER = 1013;
     /**
      * The print job refresh interval (ms).
      */
@@ -65,6 +62,7 @@ public class APP extends Application {
      * Unit: ms.
      */
     public static final long JOB_REFRESH_WAITING_PRINTER_INTERVAL = 5100;
+
 
     /**
      * The port of cups is used for send commands or browse the web page.
@@ -88,7 +86,7 @@ public class APP extends Application {
      */
     public static Process cupsdProcess;
 
-    private static List<JobItem> jobList = new LinkedList<JobItem>();
+    private static List<PrinterJobStatus> jobList = new LinkedList<PrinterJobStatus>();
     private static Context context;
 
     @Override
@@ -137,12 +135,12 @@ public class APP extends Application {
     }
 
     /**
-     * Get JobItem list.
+     * Get PrinterJobStatus list.
      * Forbid invoking JobList not in the main thread.
      *
      * @return Job List
      */
-    public static List<JobItem> getJobList() {
+    public static List<PrinterJobStatus> getJobList() {
 
         //Judge current execution whether in the main thread
         if (Looper.getMainLooper() != Looper.myLooper()) {
