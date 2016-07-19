@@ -207,6 +207,7 @@ public class ManagementActivity extends BaseActivity {
                         if (aBoolean) {
                             Toast.makeText(ManagementActivity.this
                                     , R.string.add_success, Toast.LENGTH_SHORT).show();
+                            mAdapter.refreshAddedPrinters();
                             dialog.dismiss();
                         } else {
                             Toast.makeText(ManagementActivity.this
