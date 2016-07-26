@@ -189,17 +189,32 @@ public class ManagementActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (PRESSED) {
-                    Toast.makeText(ManagementActivity.this, R.string.adding, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ManagementActivity.this, R.string.adding,
+                                   Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                if (editTextName.getText().toString().isEmpty()) {
+                    Toast.makeText(ManagementActivity.this,
+                                   R.string.name_error_with_null,
+                                   Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (editTextName.getText().toString().contains(" ")) {
+                    Toast.makeText(ManagementActivity.this,
+                                   R.string.name_error_with_space,
+                                   Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                PRESSED = true;
 
                 Map<String, String> p = new HashMap<>();
                 p.put("name", editTextName.getText().toString());
                 p.put("model", modelList.get(spinnerModel.getSelectedItemPosition()).getModel());
                 p.put("url", deviceItem.getPrinteritem().getURL());
                 p.put("isShare",cbxSharePrinter.isChecked()?"true":"false");
-
-                PRESSED = true;
 
                 AddPrinterTask<Void> task = new AddPrinterTask<Void>() {
                     @Override
@@ -295,10 +310,14 @@ public class ManagementActivity extends BaseActivity {
         TextView textViewTipURL = new TextView(this);
         textViewTipURL.setText(R.string.set_netprinter_url);
         textViewTipURL.setTextColor(Color.BLACK);
+        textViewTipURL.setError(getString(R.string.hint_windows_netprinter) + "\n"
+                                + getString(R.string.hint_Linux_netprinter)+"\n"
+                                + getString(R.string.hint_built_in_netprinter)+"\n"
+                                + getString(R.string.hint_other_printer));
+        textViewTipURL.setFocusable(true);
+        textViewTipURL.setClickable(true);
+        textViewTipURL.setFocusableInTouchMode(true);
         final EditText editTextUrl = new EditText(this);
-        TextView textViewHintUrl = new TextView(this);
-        textViewHintUrl.setText(getString(R.string.hint_windows_netprinter) + "\n"
-                +getString(R.string.hint_Linux_netprinter));
 
         TextView textViewTipBrand = new TextView(this);
         textViewTipBrand.setText(R.string.select_brand);
@@ -350,7 +369,6 @@ public class ManagementActivity extends BaseActivity {
         layout.addView(editTextName);
         layout.addView(textViewTipURL);
         layout.addView(editTextUrl);
-        layout.addView(textViewHintUrl);
         layout.addView(textViewTipBrand);
         layout.addView(spinnerBrand);
         layout.addView(textViewTipModel);
@@ -382,13 +400,31 @@ public class ManagementActivity extends BaseActivity {
                     return;
                 }
 
+                if (editTextName.getText().toString().isEmpty()) {
+                    Toast.makeText(ManagementActivity.this,
+                                   R.string.name_error_with_null, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (editTextName.getText().toString().contains(" ")) {
+                    Toast.makeText(ManagementActivity.this,
+                                   R.string.name_error_with_space, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (editTextUrl.getText().toString().isEmpty()) {
+                    Toast.makeText(ManagementActivity.this,
+                                   R.string.url_error_with_null, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                CLICKED = true;
+
                 Map<String, String> p = new HashMap<>();
                 p.put("name", editTextName.getText().toString());
                 p.put("model", modelList.get(spinnerModel.getSelectedItemPosition()).getModel());
                 p.put("url", editTextUrl.getText().toString());
                 p.put("isShare", cbxSharePrinter.isChecked() ? "true" : "false");
-
-                CLICKED = true;
 
                 AddPrinterTask<Void> task = new AddPrinterTask<Void>() {
                     @Override
