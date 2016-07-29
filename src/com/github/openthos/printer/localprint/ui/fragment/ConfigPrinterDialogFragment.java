@@ -63,7 +63,7 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
         //getDialog().setTitle(mItem.getNickName());
         Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
         //toolbar.setTitle(R.string.printer_setting);
-        toolbar.setTitle("");
+        toolbar.setTitle(mItem.getNickName());
         toolbar.inflateMenu(R.menu.menu_config_printer_dialog);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -80,9 +80,6 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
             }
         });
 
-        TextView textView_printer_name = (TextView) v.findViewById(R.id.textView_printer_name);
-        textView_printer_name.setText(mItem.getNickName());
-
         mButtonCancel = (Button) v.findViewById(R.id.button_cancel);
         mButtonOk = (Button) v.findViewById(R.id.button_ok);
         mButtonCancel.setOnClickListener(new View.OnClickListener() {
@@ -97,6 +94,7 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
                 save();
             }
         });
+        mButtonOk.setEnabled(false);
 
         mSpinnerMediaSize = (Spinner) v.findViewById(R.id.spinner_media_size);
         mSpinnerColorMode = (Spinner) v.findViewById(R.id.spinner_color_mode);
@@ -207,6 +205,7 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
                 mSpinnerMediaSize.setSelection(mOptionItem.getMediaSizeSelected());
                 mSpinnerColorMode.setSelection(mOptionItem.getColorModeSelected());
 
+                mButtonOk.setEnabled(true);
             }
         };
 
@@ -350,8 +349,7 @@ public class ConfigPrinterDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mItem = getArguments().getParcelable(ITEM);
-        setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.AppTheme_Dialog);
     }
 
     public static ConfigPrinterDialogFragment newInstance(PrinterItem item) {
