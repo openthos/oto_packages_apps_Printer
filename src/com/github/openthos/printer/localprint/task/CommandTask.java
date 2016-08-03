@@ -1,5 +1,6 @@
 package com.github.openthos.printer.localprint.task;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.github.openthos.printer.localprint.APP;
@@ -13,6 +14,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Base command task template.
@@ -24,6 +27,8 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
      * Use the lock when starting CUPS.
      */
     private static final Boolean IS_STARTING_CUPS = false;
+
+    private static ExecutorService threadPool = Executors.newCachedThreadPool();
 
     /**
      * The ERROR value can be shown to the user.
@@ -70,7 +75,6 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
      * @return boolean
      */
     protected boolean beforeCommand() {
-
         return true;
     }
 
@@ -124,7 +128,6 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                         lock_in.setFinish(true);
                     }
 
-
                 }
             };
 
@@ -150,8 +153,8 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                 }
             };
 
-            new Thread(taskIn).start();
-            new Thread(taskError).start();
+            threadPool.execute(taskIn);
+            threadPool.execute(taskError);
 
             synchronized (lock_in) {
                 if (!lock_in.isFinish()) {
@@ -164,7 +167,6 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                     lock_error.wait();
                 }
             }
-
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -263,8 +265,6 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
                 return true;
             }
 
-            //runCommand(new String[]{"sh", "proot.sh" ,"cupsd"});
-
             File file = new File(bindWorkPath());
             try {
                 APP.cupsdProcess = Runtime.getRuntime()
@@ -272,7 +272,6 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
 
         }
 
@@ -287,13 +286,21 @@ public abstract class CommandTask<Params, Progress, Result> extends BaseTask<Par
     }
 
     /**
-     * Shutdown cups
+     * Shutdown cups normally to avoid data loss.
      */
-    protected void killCups() {
-        // TODO: 2016/5/15 Shutdown CUPS A3
-        /*if (cupsdProcess != null) {
-            cupsdProcess.destroy();
-        }*/
+    public static void killCups() {
+
+        try {
+            Process proc = Runtime.getRuntime().exec(new String[]{"sh", "-c",
+                    "ps | grep cupsd 2>/dev/null | awk '{cmd=\"kill \"$2;system(cmd)}'"});
+            proc.waitFor();
+            Thread.sleep(1);
+            LogUtils.d("CommandTask", "killCups");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_USB_DEVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".APP"
@@ -41,6 +42,18 @@
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.DialogWhenLarge" />
 
+        <activity
+            android:name=".ui.JobManagerActivity"
+            android:exported="true"
+            android:label="@string/print_job_manager"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="com.github.openthos.printer.localprint.jobmanager" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".service.OpenthosPrintService"
             android:enabled="true"
@@ -55,10 +68,16 @@
                 android:resource="@xml/printservice" />
         </service>
 
+        <service
+            android:name=".service.LocalPrintService"
+            android:enabled="true" />
+
         <receiver
             android:name=".receiver.UsbPrinterReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
@@ -67,17 +86,6 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ui.JobManagerActivity">
-            <intent-filter>
-                <action android:name="com.github.openthos.printer.localprint.jobmanager" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <service
-            android:name=".service.LocalPrintService"
-            android:enabled="true"
-            android:exported="true"></service>
     </application>
 
 </manifest>
