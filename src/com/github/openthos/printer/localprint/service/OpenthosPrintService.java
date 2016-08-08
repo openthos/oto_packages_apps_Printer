@@ -78,8 +78,10 @@ public class OpenthosPrintService extends PrintService {
         final String docu_file_path = FileUtils.getDocuFilePath(printJob.getId().toString());
 
         Map<String, String> map = new HashMap<>();
-        map.put(PrintTask.LP_PRINTER, printJob.getInfo().getPrinterId().getLocalId());
-        map.put(PrintTask.LP_FILE, FileUtils.getDocuFileName(printJob.getId().toString()));
+        final String printerName = printJob.getInfo().getPrinterId().getLocalId();
+        final String fileName = FileUtils.getDocuFileName(printJob.getId().toString());
+        map.put(PrintTask.LP_PRINTER, printerName);
+        map.put(PrintTask.LP_FILE, fileName);
         map.put(PrintTask.LP_MEDIA,
                 PrinterOptionItem.media2cups(printJob.getInfo().getAttributes().getMediaSize()));
         //map.put(PrintTask.LP_RESOLUTION,
@@ -124,6 +126,16 @@ public class OpenthosPrintService extends PrintService {
         }
 
         PrintTask<Void> task = new PrintTask<Void>() {
+
+            @Override
+            protected String bindFileName() {
+                return fileName;
+            }
+
+            @Override
+            protected String bindPrinterName() {
+                return printerName;
+            }
 
             @Override
             protected void onPreExecute() {
