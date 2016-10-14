@@ -24,6 +24,8 @@ public class APP extends Application {
             = "com.github.openthos.printer.openthosprintservice.broadcast_all_activity";
     public static final String BROADCAST_REFRESH_JOBS
             = "com.github.openthos.printer.openthosprintservice.broadcast_refresh_jobs";
+    public static final String NOTIFICATION_CLOSE_ITEM
+            = "com.android.systemui.notification.close.info";
 
     public static final String GLOBAL = "global";
     public static final String FIRST_RUN = "frist_run";

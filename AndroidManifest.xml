@@ -86,6 +86,14 @@
             </intent-filter>
         </receiver>
 
+       <receiver
+           android:name=".receiver.CloseItemReceiver"
+           android:enabled="true">
+           <intent-filter>
+               <action android:name="com.android.systemui.notification.close.info"/>
+           </intent-filter>
+       </receiver>
+
     </application>
 
 </manifest>
