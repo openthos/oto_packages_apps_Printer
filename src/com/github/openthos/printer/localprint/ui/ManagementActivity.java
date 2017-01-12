@@ -397,6 +397,7 @@ public class ManagementActivity extends BaseActivity {
                 });
         final AlertDialog dialog = builder.create();
 
+        dialog.setCancelable(false);
         dialog.show();
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_frame_shadow);
         dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
