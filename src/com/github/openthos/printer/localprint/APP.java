@@ -44,7 +44,7 @@ public class APP extends Application {
     /**
      * The data packet position.
      */
-    public static final String COMPONENT_SOURCE_PATH = "/system/component_printer.tar.gz";
+    public static final String COMPONENT_SOURCE_PATH = "/system/opt/component_printer.tar.gz";
 
     public static final int TASK_DEFAULT = 1000;
     public static final int TASK_INIT_FAIL = 1006;
