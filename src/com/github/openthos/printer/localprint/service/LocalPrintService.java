@@ -125,8 +125,7 @@ public class LocalPrintService extends Service {
                 if (aBoolean != null && aBoolean) {
                     updateJobs(list);
                 } else {
-                    Toast.makeText(LocalPrintService.this, getString(R.string.query_error)
-                            + " -refreshJobs- " + ERROR, Toast.LENGTH_SHORT).show();
+                    LogUtils.d(TAG, getString(R.string.query_error) + " -refreshJobs- " + ERROR);
                 }
             }
         }.start();
